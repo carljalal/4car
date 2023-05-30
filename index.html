@@ -1,80 +1,260 @@
 <html>
 <head>
-<title>Car Game</title>
 <style>
-body {
-  margin: 0;
-  padding: 0;
+#container {
+  display: flex;
+  justify-content: space-between;
+  width: 600px;
 }
 
 .street {
   height: 800px;
-  width: 100px;
-  background-color: black;
-  float: left;
+  width: 105px;
+  background-color: lightgrey;
+  margin: 10px;
+  position: relative;
 }
 
-.car {
-  height: 50px;
-  width: 50px;
-  background-color: white;
-  position: absolute;
-  bottom: 0;
-}
 
-.left {
-  left: 0;
-}
-
-.right {
-  right: 0;
-}
+  .car {
+    height: 50px;
+    width: 50px;
+    background-color: black;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+  #scoreboard {
+    display: flex;
+    justify-content: space-around;
+    width: 600px;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+  }
 </style>
 </head>
 <body>
-<div class="street left">
-  <div class="car"></div>
-</div>
-<div class="street">
-  <div class="car"></div>
-</div>
-<div class="street right">
-  <div class="car"></div>
-</div>
-<div class="street">
-  <div class="car"></div>
+  <div id="scoreboard">
+    <div id="time">Time elapsed: 0 seconds</div>
+    <div id="collisions">Collisions: 0</div>
+    <div id="removals">Removals: 0</div>
+  </div>
+<div id="container">
+  <div class="street">
+    <div class="car"></div>
+  </div>
+  <div class="street">
+    <div class="car"></div>
+  </div>
+  <div class="street">
+    <div class="car"></div>
+  </div>
+  <div class="street">
+    <div class="car"></div>
+  </div>
 </div>
 <script>
-var cars = document.querySelectorAll(".car");
+// get the array of street divs
+var streets = document.getElementsByClassName("street");
 
-function moveCars(direction) {
-  for (var i = 0; i < cars.length; i++) {
-    cars[i].style.left = cars[i].style.left + direction + "px";
-  }
-}
+// get the array of car divs
+var cars = document.getElementsByClassName("car");
 
-function switchLanes(car) {
-  var lane = car.classList.contains("left") ? "right" : "left";
-  car.classList.remove(lane);
-  car.classList.add(direction);
-}
+// add an event listener for key presses
+document.addEventListener("keydown", function(event) {
+  // get the key code
+  var key = event.keyCode;
 
-document.addEventListener("keydown"s, function(event) {
-  switch (event.keyCode) {
-    case 81: // q
-      switchLanes(cars[0]);
+  // check which key was pressed and move the corresponding car
+  switch (key) {
+    case 81: // q key
+      moveCar(0); // move the car in street 0
       break;
-    case 87: // w
-      switchLanes(cars[1]);
+    case 87: // w key
+      moveCar(1); // move the car in street 1
       break;
-    case 69: // e
-      switchLanes(cars[2]);
+    case 69: // e key
+      moveCar(2); // move the car in street 2
       break;
-    case 82: // r
-      switchLanes(cars[3]);
+    case 82: // r key
+      moveCar(3); // move the car in street 3
+      break;
+    default:
       break;
   }
 });
+
+// define a function to move a car by 50px to the right or left
+function moveCar(index) {
+  // get the current left position of the car
+  var left = parseInt(cars[index].style.left) || 0;
+
+  // check if the car has already been moved right or not
+  if (left == 0) {
+    // move the car right by 50px
+    cars[index].style.left = "55px";
+  } else {
+    // move the car left by 50px
+    cars[index].style.left = "0px";
+  }
+}
+
+// define a function to generate an obstacle on a random street
+function generateObstacle() {
+  // get a random index between 0 and 3
+  var index = Math.floor(Math.random() * 4);
+
+  // create a new div element for the obstacle
+  var obstacle = document.createElement("div");
+
+  // set the style of the obstacle
+  obstacle.style.height = "50px";
+  obstacle.style.width = "50px";
+  obstacle.style.backgroundColor = "red";
+  obstacle.style.position = "absolute";
+  obstacle.style.top = "0px";
+  if(Math.random() > .5) obstacle.style.left = "0px";
+  else obstacle.style.left = "55px";
+  // append the obstacle to the street div
+  streets[index].appendChild(obstacle);
+  obstacle.classList.add("obstacle")
+  // return the obstacle element
+  return obstacle;
+}
+
+// define a function to move an obstacle downward at a random speed
+function moveObstacle(obstacle) {
+  // get a random speed between 1 and 30 px per second
+  var speed = Math.floor(Math.random() * 1) + 5;
+
+  // set an interval to update the position of the obstacle every second
+  var interval = setInterval(function() {
+    // get the current top position of the obstacle
+    var top = parseInt(obstacle.style.top);
+
+    // check if the obstacle has reached the bottom of the street or not
+    if (top >= 800) {
+      // clear the interval and remove the obstacle from the street
+      clearInterval(interval);
+      obstacle.remove();
+      updateRemovals();
+
+    } else {
+      // increase the top position by the speed
+      top += speed;
+
+      // set the new top position of the obstacle
+      obstacle.style.top = top + "px";
+    }
+  }, 10);
+}
+
+// generate and move an obstacle every 5 seconds
+setInterval(function() {
+  var obstacle = generateObstacle();
+  moveObstacle(obstacle);
+}, 500);
+
+// define a function to check if two elements are overlapping
+function isOverlapping(element1, element2) {
+  // get the bounding rectangles of the elements
+  var rect1 = element1.getBoundingClientRect();
+  var rect2 = element2.getBoundingClientRect();
+
+  // check if the rectangles are intersecting
+  return !(
+    rect1.right < rect2.left ||
+    rect1.left > rect2.right ||
+    rect1.bottom < rect2.top ||
+    rect1.top > rect2.bottom
+  );
+}
+
+// define a function to check if any obstacle has collided with any car
+function checkCollision() {
+  // loop through the array of cars
+  for (var i = 0; i < cars.length; i++) {
+    // get the current car element
+    var car = cars[i];
+
+    // get the parent street element of the car
+    var street = car.parentNode;
+
+    // get the array of obstacles in the street
+    var obstacles = street.getElementsByClassName("obstacle");
+
+    // loop through the array of obstacles
+    for (var j = 0; j < obstacles.length; j++) {
+      // get the current obstacle element
+      var obstacle = obstacles[j];
+
+      // check if the obstacle is overlapping with the car
+      if (isOverlapping(obstacle, car)) {
+        // do something when collision happens
+        obstacle.remove();
+        updateCollisions();
+
+        console.log("Collision detected!");
+      }
+    }
+  }
+}
+
+// check for collision every second
+setInterval(checkCollision, 20);
+
+let timeDiv = document.getElementById("time")
+let collisionsDiv = document.getElementById("collisions")
+let removalsDiv = document.getElementById("removals")
+let removals = 0
+let collisions = 0
+
+// define a function to update the time div with the time elapsed
+function updateTime() {
+  // increase the time by one second
+  time++;
+
+  // update the time div with the formatted time
+  timeDiv.textContent = "Time elapsed: " + time + " seconds";
+}
+
+// define a function to update the collisions div with the number of collisions
+function updateCollisions() {
+  // increase the collisions by one
+  collisions++;
+
+  // update the collisions div with the formatted number
+  collisionsDiv.textContent = "Collisions: " + collisions;
+}
+
+// define a function to update the removals div with the number of removals
+function updateRemovals() {
+  // increase the removals by one
+  removals++;
+
+  // update the removals div with the formatted number
+  removalsDiv.textContent = "Removals: " + removals;
+}
+
+// get the start time of the site load
+var startTime = performance.now();
+
+// define a function to update the time div with the time elapsed
+function updateTime() {
+  // get the current time
+  var currentTime = performance.now();
+
+  // calculate the time elapsed in seconds
+  var timeElapsed = Math.floor((currentTime - startTime) / 1000);
+
+  // update the time div with the formatted time
+  timeDiv.textContent = "Time elapsed: " + timeElapsed + " seconds";
+}
+
+// update the time every second
+setInterval(updateTime, 1000);
+
+
 </script>
 </body>
 </html>
