@@ -10,16 +10,20 @@
 .street {
   height: 800px;
   width: 105px;
-  background-color: lightgrey;
+  background-color: rgb(50,50,50);
   margin: 10px;
   position: relative;
+}
+
+body {
+  background-color: black;
 }
 
 
   .car {
     height: 50px;
     width: 50px;
-    background-color: black;
+    background-color: white;
     position: absolute;
     bottom: 0;
     left: 0;
@@ -56,6 +60,12 @@
 <script>
 // get the array of street divs
 var streets = document.getElementsByClassName("street");
+
+for (let i = 0; i < streets.length; i++){
+  streets[i].addEventListener("pointerdown", e => {
+    moveCar(i);
+  })
+}
 
 // get the array of car divs
 var cars = document.getElementsByClassName("car");
