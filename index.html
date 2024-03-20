@@ -21,7 +21,7 @@ body {
 
 
   .car {
-    height: 50px;
+    height: 20px;
     width: 50px;
     background-color: white;
     position: absolute;
@@ -118,7 +118,7 @@ function generateObstacle() {
   var obstacle = document.createElement("div");
 
   // set the style of the obstacle
-  obstacle.style.height = "50px";
+  obstacle.style.height = "20px";
   obstacle.style.width = "50px";
   obstacle.style.backgroundColor = "red";
   obstacle.style.position = "absolute";
@@ -163,7 +163,7 @@ function moveObstacle(obstacle) {
 setInterval(function() {
   var obstacle = generateObstacle();
   moveObstacle(obstacle);
-}, 1500);
+}, 500);
 
 // define a function to check if two elements are overlapping
 function isOverlapping(element1, element2) {
